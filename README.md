@@ -60,7 +60,13 @@ Perplexity/
 
 ## Requirements
 
-- **Python** >= 3.13
+- **[uv](https://docs.astral.sh/uv/)** — Python package manager. Install with:
+
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+
+- **Python** >= 3.13 (uv will install it automatically if needed)
 - **Ollama** installed (local or remote)
 - **Tavily API key** ([get one here](https://tavily.com))
 
