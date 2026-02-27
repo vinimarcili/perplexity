@@ -5,7 +5,6 @@ from typing import Dict, List, Tuple
 from src.prompts import FINAL_RESPONSE_PROMPT
 from src.schemas import QueryResult, ReportState
 from src.services.llm import get_llm
-from src.utils import strip_think_tags
 
 llm = get_llm()
 
@@ -55,5 +54,4 @@ def final_writer(state: ReportState) -> Dict[str, str]:
         search_results=search_context,
     )
     llm_result = llm.invoke(prompt)
-    content = strip_think_tags(llm_result.content)
-    return {"response": f"{content}\n\nReferences:\n{references}"}
+    return {"response": f"{llm_result.content}\n\nReferences:\n{references}"}

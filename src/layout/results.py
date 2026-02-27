@@ -57,13 +57,18 @@ def render_results(graph: CompiledStateGraph, user_input: str) -> None:
     """
     response = ""
 
-    with st.status("Searching..."):
-        for output in graph.stream({"input": user_input}, stream_mode="debug"):
-            if output["type"] == "task_result":
-                st.write(f"Running **{output['payload']['name']}**")
-                extracted = _extract_response(output)
-                if extracted:
-                    response = extracted
+    try:
+        with st.status("Searching..."):
+            for output in graph.stream({"input": user_input}, stream_mode="debug"):
+                if output["type"] == "task_result":
+                    st.write(f"Running **{output['payload']['name']}**")
+                    extracted = _extract_response(output)
+                    if extracted:
+                        response = extracted
+    except Exception as exc:
+        st.session_state.searching = False
+        st.error(f"An error occurred during execution: {exc}")
+        return
 
     st.session_state.searching = False
 
