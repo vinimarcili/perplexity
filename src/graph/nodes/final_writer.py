@@ -1,4 +1,7 @@
-"""Node that aggregates search summaries and generates the final report."""
+"""Node that aggregates search summaries and generates the final report.
+
+Uses the main model (``OLLAMA_MODEL``) for higher-quality report generation.
+"""
 
 from typing import Dict, List, Tuple
 

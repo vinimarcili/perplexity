@@ -69,6 +69,11 @@ def parse_queries(text: str) -> List[str]:
         cleaned = re.sub(r"^\s*[\d]+[.\)]\s*", "", line).strip()
         cleaned = re.sub(r"^\s*[-*]\s*", "", cleaned).strip()
         cleaned = cleaned.strip('"').strip("'")
-        if cleaned and len(cleaned) > 5:
-            lines.append(cleaned)
+        if not cleaned or len(cleaned) < 10:
+            continue
+        if cleaned.startswith("#") or cleaned.startswith("**"):
+            continue
+        if ":" in cleaned and len(cleaned) > 100:
+            continue
+        lines.append(cleaned)
     return lines[:5]

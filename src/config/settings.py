@@ -16,7 +16,8 @@ class Settings:
 
     Attributes:
         ollama_url: Base URL for the Ollama API server.
-        ollama_model: Name of the Ollama model to use for inference.
+        ollama_model: Main model for query generation and final report writing.
+        ollama_search_model: Lightweight model for parallel search summarization.
         tavily_api_key: API key for the Tavily web search service.
     """
 
@@ -24,6 +25,7 @@ class Settings:
         """Initialize settings from environment variables."""
         self.ollama_url: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
         self.ollama_model: str = os.getenv("OLLAMA_MODEL", "deepseek-r1:14b")
+        self.ollama_search_model: str = os.getenv("OLLAMA_SEARCH_MODEL", "llama3.2:3b")
         self.tavily_api_key: str = os.getenv("TAVILY_API_KEY", "")
 
 

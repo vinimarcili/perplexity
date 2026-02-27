@@ -91,8 +91,13 @@ cp .env.exemple .env
 ```env
 OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=deepseek-r1:14b
+OLLAMA_SEARCH_MODEL=llama3.2:3b
 TAVILY_API_KEY=your_key_here
 ```
+
+> **Dual-model setup:** The main model (`OLLAMA_MODEL`) handles query generation and final report writing.
+> The search model (`OLLAMA_SEARCH_MODEL`) is a smaller model used for parallel search summarization,
+> allowing Ollama to process multiple requests concurrently within the available VRAM.
 
 ### 3. Run
 
@@ -112,13 +117,25 @@ uv run streamlit run main.py
 
 Download from [ollama.com](https://ollama.com).
 
-### 2. Pull a model
+### 2. Pull the models
 
 ```powershell
 ollama pull deepseek-r1:14b
+ollama pull llama3.2:3b
 ```
 
-### 3. Set `OLLAMA_URL` in `.env`
+> The project uses two models: a main model for query generation and report writing,
+> and a lightweight model for parallel search summarization. See the `.env.exemple` for configuration.
+
+### 3. Enable parallel inference (optional)
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("OLLAMA_NUM_PARALLEL", "3", "User")
+```
+
+Restart Ollama after this change.
+
+### 4. Set `OLLAMA_URL` in `.env`
 
 ```env
 OLLAMA_URL=http://localhost:11434
@@ -126,7 +143,7 @@ OLLAMA_URL=http://localhost:11434
 
 > `localhost` works in most WSL2 setups. If not, use the IP from step 3.
 
-### 4. Allow external connections (Windows)
+### 5. Allow external connections (Windows)
 
 Set the environment variable on Windows (PowerShell):
 
@@ -136,7 +153,7 @@ Set the environment variable on Windows (PowerShell):
 
 Restart Ollama after this change.
 
-### 5. Open the firewall (PowerShell as admin on Windows)
+### 6. Open the firewall (PowerShell as admin on Windows)
 
 ```powershell
 netsh advfirewall firewall add rule name="Ollama" dir=in action=allow protocol=TCP localport=11434

@@ -1,4 +1,7 @@
-"""Node that generates search queries from the user's question."""
+"""Node that generates search queries from the user's question.
+
+Uses the main model (``OLLAMA_MODEL``) for higher-quality query generation.
+"""
 
 from typing import Dict, List
 
