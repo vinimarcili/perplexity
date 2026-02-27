@@ -1,0 +1,13 @@
+[project]
+name = "perplexity"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain>=1.2.10",
+    "langchain-ollama>=1.0.1",
+    "langgraph>=1.0.9",
+    "python-dotenv>=1.2.1",
+    "streamlit>=1.54.0",
+]
