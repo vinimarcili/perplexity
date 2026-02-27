@@ -3,6 +3,46 @@
 import streamlit as st
 from langgraph.graph.state import CompiledStateGraph
 
+from src.utils import split_think_and_response
+
+
+def _extract_response(output: dict) -> str:
+    """Extract the ``response`` value from a debug stream event payload.
+
+    Handles both dict and list-of-tuples result formats across
+    different LangGraph versions.
+
+    Args:
+        output: A single debug stream event dict.
+
+    Returns:
+        The response string if found, otherwise empty string.
+    """
+    result_data = output["payload"]["result"]
+    if isinstance(result_data, dict) and "response" in result_data:
+        return result_data["response"]
+    if isinstance(result_data, list):
+        for item in result_data:
+            if isinstance(item, (list, tuple)) and len(item) > 1:
+                if isinstance(item[1], dict) and "response" in item[1]:
+                    return item[1]["response"]
+    return ""
+
+
+def _render_response(response: str) -> None:
+    """Render the final response, splitting think blocks if present.
+
+    Args:
+        response: The full LLM response string.
+    """
+    think, content = split_think_and_response(response)
+
+    if think:
+        with st.expander("Think", expanded=False):
+            st.write(think)
+
+    st.write(content)
+
 
 def render_results(graph: CompiledStateGraph, user_input: str) -> None:
     """Stream the graph execution and render the final response.
@@ -20,17 +60,10 @@ def render_results(graph: CompiledStateGraph, user_input: str) -> None:
     with st.status("Searching..."):
         for output in graph.stream({"input": user_input}, stream_mode="debug"):
             if output["type"] == "task_result":
-                node_name: str = output["payload"]["name"]
-                st.write(f"Running **{node_name}**")
-
-                result_data = output["payload"]["result"]
-                if isinstance(result_data, dict) and "response" in result_data:
-                    response = result_data["response"]
-                elif isinstance(result_data, list):
-                    for item in result_data:
-                        if isinstance(item, (list, tuple)) and len(item) > 1:
-                            if isinstance(item[1], dict) and "response" in item[1]:
-                                response = item[1]["response"]
+                st.write(f"Running **{output['payload']['name']}**")
+                extracted = _extract_response(output)
+                if extracted:
+                    response = extracted
 
     st.session_state.searching = False
 
@@ -38,13 +71,4 @@ def render_results(graph: CompiledStateGraph, user_input: str) -> None:
         st.warning("No response was generated. The graph may have failed to produce results.")
         return
 
-    if "</think>" in response:
-        think_str = response.split("</think>")[0]
-        final_response = response.split("</think>")[1]
-
-        with st.expander("Think", expanded=False):
-            st.write(think_str)
-
-        st.write(final_response)
-    else:
-        st.write(response)
+    _render_response(response)

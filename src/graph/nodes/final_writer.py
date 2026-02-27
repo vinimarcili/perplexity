@@ -1,12 +1,37 @@
 """Node that aggregates search summaries and generates the final report."""
 
-from typing import Dict
+from typing import Dict, List, Tuple
 
 from src.prompts import FINAL_RESPONSE_PROMPT
-from src.schemas import ReportState
+from src.schemas import QueryResult, ReportState
 from src.services.llm import get_llm
+from src.utils import strip_think_tags
 
 llm = get_llm()
+
+
+def _format_sources(results: List[QueryResult]) -> Tuple[str, str]:
+    """Format query results into prompt context and a references block.
+
+    Args:
+        results: List of search results with titles, URLs, and summaries.
+
+    Returns:
+        A tuple ``(search_context, references)`` where ``search_context``
+        is the numbered text for the LLM prompt and ``references`` is the
+        markdown-formatted citation list.
+    """
+    context_parts: List[str] = []
+    reference_parts: List[str] = []
+
+    for i, result in enumerate(results, start=1):
+        context_parts.append(
+            f"[{i}]\nTitle: {result.title}\nURL: {result.url}\n"
+            f"Resume: {result.resume}\n=======================\n"
+        )
+        reference_parts.append(f"[{i}] - [{result.title}]({result.url})")
+
+    return "\n".join(context_parts), "\n".join(reference_parts)
 
 
 def final_writer(state: ReportState) -> Dict[str, str]:
@@ -23,21 +48,12 @@ def final_writer(state: ReportState) -> Dict[str, str]:
         A dict with key ``response`` containing the full report string
         including references.
     """
-    search_results = ""
-    references = ""
-
-    for i, result in enumerate(state["queries_results"]):
-        search_results += f"[{i + 1}]\n"
-        search_results += f"Title: {result.title}\n"
-        search_results += f"URL: {result.url}\n"
-        search_results += f"Resume: {result.resume}\n"
-        search_results += "=======================\n\n"
-        references += f"[{i + 1}] - [{result.title}]({result.url})\n"
+    search_context, references = _format_sources(state["queries_results"])
 
     prompt = FINAL_RESPONSE_PROMPT.format(
         input=state["input"],
-        search_results=search_results,
+        search_results=search_context,
     )
     llm_result = llm.invoke(prompt)
-    response = f"{llm_result.content}\n\nReferences:\n{references}"
-    return {"response": response}
+    content = strip_think_tags(llm_result.content)
+    return {"response": f"{content}\n\nReferences:\n{references}"}

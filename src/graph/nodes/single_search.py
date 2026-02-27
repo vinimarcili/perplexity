@@ -6,6 +6,7 @@ from src.prompts import SEARCH_RESUME_PROMPT
 from src.schemas import QueryResult
 from src.services.llm import get_llm
 from src.services.search import search_and_extract
+from src.utils import strip_think_tags
 
 llm = get_llm()
 
@@ -37,10 +38,6 @@ def single_search(state: dict) -> Dict[str, List[QueryResult]]:
     title, url, raw_content = result
     prompt = SEARCH_RESUME_PROMPT.format(input=user_input, search_results=raw_content)
     llm_result = llm.invoke(prompt)
+    resume = strip_think_tags(llm_result.content)
 
-    query_result = QueryResult(
-        title=title,
-        url=url,
-        resume=llm_result.content,
-    )
-    return {"queries_results": [query_result]}
+    return {"queries_results": [QueryResult(title=title, url=url, resume=resume)]}
