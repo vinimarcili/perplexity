@@ -106,11 +106,9 @@ Or manually:
 uv run streamlit run main.py
 ```
 
-## Ollama Setup (WSL + Windows)
+## Ollama Setup
 
-If you develop inside WSL but want GPU inference on Windows:
-
-### 1. Install Ollama on Windows
+### 1. Install Ollama
 
 Download from [ollama.com](https://ollama.com).
 
@@ -138,7 +136,7 @@ Set the environment variable on Windows (PowerShell):
 
 Restart Ollama after this change.
 
-### 5. Open the firewall (PowerShell as admin)
+### 5. Open the firewall (PowerShell as admin on Windows)
 
 ```powershell
 netsh advfirewall firewall add rule name="Ollama" dir=in action=allow protocol=TCP localport=11434
