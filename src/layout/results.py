@@ -67,13 +67,11 @@ def render_results(graph: CompiledStateGraph, user_input: str) -> None:
                         response = extracted
     except Exception as exc:
         st.session_state.searching = False
-        st.error(f"An error occurred during execution: {exc}")
-        return
+        st.session_state.last_response = ""
+        st.session_state.last_error = str(exc)
+        st.rerun()
 
     st.session_state.searching = False
-
-    if not response:
-        st.warning("No response was generated. The graph may have failed to produce results.")
-        return
-
-    _render_response(response)
+    st.session_state.last_response = response
+    st.session_state.last_error = ""
+    st.rerun()
