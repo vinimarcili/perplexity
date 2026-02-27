@@ -19,7 +19,7 @@ cat /etc/resolv.conf | grep nameserver | awk '{print $2}'
 Crie um arquivo `.env` na raiz do projeto com o IP obtido:
 
 ```env
-OLLAMA_WINDOWS_URL=http://<IP_DO_HOST>:11434
+OLLAMA_URL=http://<IP_DO_HOST>:11434
 ```
 
 ### 4. Libere o acesso no firewall do Windows (se necessário)
